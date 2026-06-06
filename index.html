@@ -4,16 +4,502 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Madhwa Dharma Mitra</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#110800;font-family:'Crimson Text',Georgia,serif;color:#e8d5b0;min-height:100vh}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#110800}::-webkit-scrollbar-thumb{background:#c8860a;border-radius:3px}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.float{animation:float 4s ease-in-out infinite}
+.float2{animation:float 4s ease-in-out 2s infinite}
+#app{display:flex;flex-direction:column;align-items:center;min-height:100vh;background:linear-gradient(160deg,#110800 0%,#1e0c00 60%,#110800 100%)}
+header{width:100%;max-width:820px;padding:22px 20px 12px;text-align:center}
+.divider{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.divider-line{flex:1;height:1px}
+.divider-line-l{background:linear-gradient(to right,transparent,#c8860a)}
+.divider-line-r{background:linear-gradient(to left,transparent,#c8860a)}
+h1{font-family:'Cinzel Decorative',serif;color:#f5c842;font-size:clamp(16px,4vw,24px);letter-spacing:2px;text-shadow:0 0 24px rgba(245,200,66,.35);margin-bottom:4px}
+.subtitle{color:#c8860a;font-size:13px;font-style:italic}
+.tab-bar{display:flex;gap:6px;justify-content:center;padding:10px 16px;width:100%;max-width:820px;flex-wrap:wrap}
+.tab-btn{padding:7px 14px;border-radius:24px;border:1px solid rgba(200,134,10,.22);background:transparent;color:#9a6a20;cursor:pointer;font-size:13px;font-family:'Crimson Text',Georgia,serif;transition:all .2s}
+.tab-btn.active{border-color:#c8860a;background:rgba(200,134,10,.18);color:#f5c842}
+.tab-btn:hover{background:rgba(200,134,10,.1)}
+.gold-line{width:100%;max-width:820px;height:1px;background:linear-gradient(to right,transparent,#c8860a,transparent);margin-bottom:0}
+.panel{flex:1;width:100%;max-width:820px;padding:16px 16px 0;overflow-y:auto;max-height:calc(100vh - 220px)}
+.card{background:rgba(255,255,255,.035);border:1px solid rgba(200,134,10,.22);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.hidden{display:none}
+ 
+/* Chat */
+#chat-panel{display:flex;flex-direction:column;gap:14px}
+.msg-wrap{display:flex;gap:8px;align-items:flex-start;animation:fadeUp .35s ease forwards}
+.msg-wrap.user{justify-content:flex-end}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:2px}
+.avatar-bot{background:linear-gradient(135deg,#c8860a,#f5c842);box-shadow:0 0 10px rgba(200,134,10,.4)}
+.avatar-user{background:linear-gradient(135deg,#4a2008,#7a3a0a);border:1px solid rgba(200,134,10,.3)}
+.bubble{max-width:78%;border-radius:4px 16px 16px 16px;padding:11px 15px;border:1px solid rgba(200,134,10,.22);background:rgba(255,255,255,.035)}
+.bubble.user{border-radius:16px 16px 4px 16px;background:linear-gradient(135deg,#7a3a0a,#5a2808);border-color:rgba(200,134,10,.4)}
+.bubble p{font-size:15px;line-height:1.72;white-space:pre-wrap;color:#e8d5b0}
+.bubble.user p{color:#fde8c0}
+.sources-row{margin-top:8px;border-top:1px solid rgba(200,134,10,.15);padding-top:6px}
+.sources-row small{color:#5a3a10;font-size:10px}
+.source-tag{font-size:10px;color:#c8860a;border:1px solid rgba(200,134,10,.25);border-radius:10px;padding:1px 7px;margin:2px 2px 0 0;display:inline-block}
+.typing-dots{display:flex;gap:5px;padding:13px 18px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:#c8860a;animation:pulse 1.2s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+.suggestions{text-align:center;margin-top:6px}
+.suggestions p{color:#9a6a20;font-size:12px;font-style:italic;margin-bottom:8px}
+.sug-wrap{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sug-btn{background:rgba(200,134,10,.06);border:1px solid rgba(200,134,10,.22);color:#c8860a;border-radius:18px;padding:5px 13px;font-size:13px;cursor:pointer;font-family:'Crimson Text',Georgia,serif;transition:all .2s}
+.sug-btn:hover{background:rgba(200,134,10,.18);color:#f5c842;border-color:#c8860a}
+footer{width:100%;max-width:820px;padding:12px 16px 20px}
+.input-bar{display:flex;gap:8px;background:rgba(255,255,255,.03);border:1px solid rgba(200,134,10,.28);border-radius:26px;padding:5px 6px 5px 16px}
+#chat-input{flex:1;background:transparent;border:none;outline:none;color:#e8d5b0;font-size:15px;font-family:'Crimson Text',Georgia,serif;resize:none;line-height:1.6;padding:6px 0;max-height:100px;overflow-y:auto}
+#chat-input::placeholder{color:#5a3a10}
+#send-btn{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#c8860a,#f5c842);color:#1a0a00;cursor:pointer;font-size:17px;flex-shrink:0;transition:all .2s;box-shadow:0 0 12px rgba(200,134,10,.45)}
+#send-btn:disabled{background:rgba(200,134,10,.15);color:#5a3a10;cursor:not-allowed;box-shadow:none}
+.footer-note{text-align:center;color:#5a3a10;font-size:10px;margin-top:8px}
+ 
+/* Festivals */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-btn{padding:3px 10px;border-radius:14px;border:1px solid rgba(200,134,10,.22);background:transparent;color:#9a6a20;cursor:pointer;font-size:11px;font-family:'Crimson Text',Georgia,serif;transition:all .2s}
+.filter-btn.active{border-color:#c8860a;background:rgba(200,134,10,.18);color:#f5c842}
+.fest-row{display:flex;gap:10px;align-items:flex-start;cursor:default}
+.fest-row:hover{background:rgba(200,134,10,.06)!important;border-radius:12px}
+.fest-date{min-width:90px;font-size:11px;color:#c8860a;padding-top:2px;font-style:italic}
+.fest-name{font-size:14px;font-weight:600}
+.fest-desc{color:#9a6a20;font-size:12px;margin-top:2px}
+.type-tag{font-size:10px;border-radius:10px;padding:1px 7px;opacity:.75;white-space:nowrap}
+.puja-item{cursor:pointer}
+.puja-item:hover{background:rgba(200,134,10,.06)!important}
+.puja-header{display:flex;justify-content:space-between;align-items:center}
+.puja-title{font-size:14px;color:#e8d5b0}
+.chevron{color:#c8860a;font-size:16px}
+.puja-steps{margin-top:10px}
+.puja-steps ol{padding-left:18px}
+.puja-steps li{color:#e8d5b0;font-size:13px;line-height:1.6;margin-bottom:4px}
+.puja-note{color:#c8860a;font-size:12px;margin-top:10px;font-style:italic;border-top:1px solid rgba(200,134,10,.15);padding-top:8px}
+.stotra-item{border-bottom:1px solid rgba(200,134,10,.12);padding-bottom:8px;margin-bottom:8px}
+.stotra-name{color:#f5c842;font-size:13px}
+.stotra-when{color:#c8860a;font-size:11px;font-style:italic}
+.stotra-desc{color:#9a6a20;font-size:12px;margin-top:2px}
+.skandha-row{cursor:pointer}
+.skandha-row:hover{background:rgba(200,134,10,.06)!important}
+.skandha-inner{display:flex;align-items:center;gap:10px}
+.skandha-num{width:28px;height:28px;border-radius:50%;background:rgba(200,134,10,.15);border:1px solid rgba(200,134,10,.35);display:flex;align-items:center;justify-content:center;color:#c8860a;font-size:12px;flex-shrink:0}
+.skandha-title{color:#e8d5b0;font-size:13px;flex:1}
+.skandha-key{color:#9a6a20;font-size:12px;margin-top:5px;line-height:1.6}
+.section-title{color:#f5c842;font-size:14px;margin:12px 0 8px;padding:0 4px}
+.shloka-text{color:#f5c842;font-size:13px;font-style:italic;line-height:1.6}
+.shloka-meaning{color:#9a6a20;font-size:12px;margin-top:5px}
+.interp-box{margin-top:10px;border-color:rgba(200,134,10,.35)!important}
+.interp-title{color:#f5c842;font-size:13px;margin-bottom:6px}
+.interp-text{color:#e8d5b0;font-size:13px;line-height:1.7}
+.panchang-box{background:rgba(200,134,10,.06);border-color:rgba(200,134,10,.35)!important}
+.panchang-title{color:#f5c842;font-family:'Cinzel Decorative',serif;font-size:13px;margin-bottom:2px}
+.panchang-sub{color:#e8d5b0;font-size:13px}
+.panchang-note{color:#9a6a20;font-size:12px;margin-top:4px}
+.quote-box{background:rgba(200,134,10,.05)}
+.quote-text{color:#f5c842;font-size:14px;font-style:italic;line-height:1.6}
+.quote-attr{color:#9a6a20;font-size:11px;margin-top:4px}
+.stotras-title{color:#f5c842;font-size:15px;margin-bottom:8px}
+.disclaimer{color:#5a3a10;font-size:11px;text-align:center;margin-top:10px;font-style:italic}
+</style>
 </head>
-<body style="margin:0;background:#110800">
-<div id="root"></div>
-<script type="text/babel" src="./madhwa-chatbot.jsx"></script>
-<script type="text/babel">
-  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MadhwaChatbot));
+<body>
+<div id="app">
+ 
+  <!-- HEADER -->
+  <header>
+    <div class="divider">
+      <div class="divider-line divider-line-l"></div>
+      <span class="float" style="font-size:22px">🪷</span>
+      <span style="color:#f5c842;font-family:'Cinzel Decorative',serif;font-size:10px;letter-spacing:4px">MADHWA DHARMA MITRA</span>
+      <span class="float2" style="font-size:22px">🪷</span>
+      <div class="divider-line divider-line-r"></div>
+    </div>
+    <h1>Madhwa Dharma Mitra</h1>
+    <p class="subtitle">Dvaita Vedanta · UM Panchang · Bhagavatam · Puja Vidhana</p>
+  </header>
+ 
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('chat')">🪷 Dharma Chat</button>
+    <button class="tab-btn" onclick="switchTab('festival')">📅 Festivals</button>
+    <button class="tab-btn" onclick="switchTab('puja')">🔔 Puja Vidhana</button>
+    <button class="tab-btn" onclick="switchTab('bhagavata')">📖 Bhagavatam</button>
+  </div>
+  <div class="gold-line"></div>
+ 
+  <!-- CHAT TAB -->
+  <div id="tab-chat" class="panel" style="display:flex;flex-direction:column;gap:14px">
+    <div id="chat-panel">
+      <div class="msg-wrap">
+        <div class="avatar avatar-bot">🪷</div>
+        <div class="bubble">
+          <p>🙏 Hari Sarvottama! Vayu Jeevottama!
+ 
+I am Madhwa Dharma Mitra — your guide to the Madhwa Sampradaya. Ask me about:
+• Dvaita Vedanta philosophy
+• Puja Vidhana &amp; Stotras
+• Parabhava Samvatsara festivals (UM Panchang)
+• Srimad Bhagavatam stories
+• Haridasas, Saints &amp; Mathas
+ 
+How may I serve you today?</p>
+        </div>
+      </div>
+    </div>
+    <div class="suggestions" id="suggestions">
+      <p>— Ask me anything —</p>
+      <div class="sug-wrap">
+        <button class="sug-btn" onclick="sendSug(this)">What is Dvaita Vedanta?</button>
+        <button class="sug-btn" onclick="sendSug(this)">How to do Ekadashi fasting?</button>
+        <button class="sug-btn" onclick="sendSug(this)">Tell me about Dvadasha Stotra</button>
+        <button class="sug-btn" onclick="sendSug(this)">Who is Sri Raghavendra Swami?</button>
+        <button class="sug-btn" onclick="sendSug(this)">Explain Pancha Bheda</button>
+        <button class="sug-btn" onclick="sendSug(this)">What is Gajendra Moksha?</button>
+        <button class="sug-btn" onclick="sendSug(this)">What is the Parabhava Samvatsara?</button>
+        <button class="sug-btn" onclick="sendSug(this)">Tell me about Chaturmasya Vrata</button>
+      </div>
+    </div>
+    <div id="chat-bottom"></div>
+  </div>
+ 
+  <!-- FESTIVALS TAB -->
+  <div id="tab-festival" class="panel hidden" style="padding-bottom:24px">
+    <div class="card panchang-box">
+      <p class="panchang-title">Sri Parabhava Nama Samvatsara</p>
+      <p class="panchang-sub">19 March 2026 – March 2027 · Source: Uttaradi Math / SRS Matha Panchanga</p>
+      <p class="panchang-note">Guru Pushya Yoga: 18 Jun 2026, 18 Mar 2027 · Pushyarka Yoga: 26 Nov 2026</p>
+    </div>
+    <div class="filter-bar" id="filter-bar"></div>
+    <div id="fest-list"></div>
+    <p class="disclaimer">Dates based on SRS Matha / Uttaradi Math Panchanga (India). Consult uttaradimath.org for exact dates in your region.</p>
+  </div>
+ 
+  <!-- PUJA TAB -->
+  <div id="tab-puja" class="panel hidden" style="padding-bottom:24px">
+    <div class="card quote-box">
+      <p class="quote-text">"Archithah samsmruthah dhyathah kirthithah kathithah shruthah yo dadaathyamruthathvam hi sa maam rakshathu keshavah"</p>
+      <p class="quote-attr">— Sri Madhvacharya: "Keshava who is worshipped, remembered, meditated upon, praised, described and prayed to — may He protect me and grant immortality."</p>
+    </div>
+    <div class="card">
+      <p class="stotras-title">✨ Key Stotras to Chant</p>
+      <div id="stotras-list"></div>
+    </div>
+    <p class="section-title">🔔 Puja Procedures by Festival</p>
+    <div id="puja-list"></div>
+  </div>
+ 
+  <!-- BHAGAVATAM TAB -->
+  <div id="tab-bhagavata" class="panel hidden" style="padding-bottom:24px">
+    <div class="card quote-box">
+      <p class="quote-text">"Nigama-kalpa-taror galitaṃ phalaṃ śuka-mukhād amṛta-drava-saṃyutam"</p>
+      <p class="quote-attr">The Bhagavatam is the ripe fruit of the Vedic tree, flowing with nectar from the lips of Suka Muni. (SB 1.1.3)</p>
+    </div>
+    <p class="section-title">🕉️ Key Shlokas</p>
+    <div id="shlokas-list"></div>
+    <p class="section-title">📖 The 12 Skandhas (Cantos)</p>
+    <div id="skandhas-list"></div>
+    <div class="card interp-box">
+      <p class="interp-title">Madhwa Interpretation</p>
+      <p class="interp-text">Madhvacharya's Bhagavata Tatparya Nirnaya reveals the Dvaita purport: every lila of Krishna demonstrates His supreme independence (Swatantrya). The Gopis' love represents the highest Ananya Bhakti. Gajendra's surrender is the model of Prapatti (Sharanagati). Prahlada teaches us that devotion cannot be destroyed by any external force. The Bhagavatam's core teaching: Hari Sarvottama — Vishnu alone is the Supreme.</p>
+    </div>
+  </div>
+ 
+  <!-- FOOTER (chat only) -->
+  <footer id="chat-footer">
+    <div class="input-bar">
+      <textarea id="chat-input" rows="1" placeholder="Ask about Dvaita, festivals, puja, Bhagavatam..."></textarea>
+      <button id="send-btn" onclick="sendMessage()">→</button>
+    </div>
+    <p class="footer-note">🪷 Hari Sarvottama · Vayu Jeevottama · Madhwa Dharma Mitra · UM Panchanga</p>
+  </footer>
+ 
+</div>
+ 
+<script>
+// ── KNOWLEDGE BASE ──────────────────────────────────────────
+const KB = [
+  {id:1,topic:"Founder & Philosophy",content:"Sri Madhvacharya (1238-1317 CE), also called Purna Prajna or Ananda Tirtha, is the founder of Dvaita Vedanta and the Madhwa Sampradaya. Born in Pajaka near Udupi, Karnataka. Core teaching: Jiva (soul) and Brahman (Vishnu) are eternally distinct. Mukti is eternal blissful proximity to Lord Vishnu. Guru Parampara: Vishnu → Brahma → Narada → Vedavyasa → Madhvacharya."},
+  {id:2,topic:"Dvaita Vedanta Pancha Bheda",content:"Pancha Bheda (five differences): 1) Jiva-Brahma: souls differ from Vishnu. 2) Jada-Brahma: matter differs from God. 3) Jiva-Jiva: souls differ from each other. 4) Jada-Jiva: matter differs from souls. 5) Jada-Jada: matter differs from matter. Vishnu alone is Swatantra (independent). All Jivas and Jada are Paratantra (dependent). Mukti = eternal blissful service to Vishnu with Taratamya preserved."},
+  {id:3,topic:"Taratamya Hierarchy",content:"Taratamya hierarchy: Vishnu (Supreme), Lakshmi Devi (highest dependent), Brahma/Vayu (equal second tier), Garuda, Shesha, Indra, Saraswati. Vayu (Hanuman in Treta, Bhima in Dvapara, Madhvacharya in Kali Yuga) is the most exalted Jiva and intermediary between humans and Vishnu. Even in Mukti, Taratamya persists."},
+  {id:4,topic:"Sarva Mula Granthas",content:"Madhvacharya wrote 37 works: Anuvyakhyana, Brahmasutra Bhashya, Gita Bhashya, Mahabharata Tatparya Nirnaya, Bhagavata Tatparya Nirnaya, Vishnu Tattva Vinirnaya. Later: Jayatirtha wrote Nyaya Sudha; Vyasatirtha wrote Nyayamrita; Raghavendra Swami wrote 60+ works. Jagannatha Dasa's Harikathamrita Sara is called the fifth Veda."},
+  {id:5,topic:"Nithya Puja Daily Worship",content:"Daily puja steps: 1) Achamana — sip water chanting Keshava, Narayana, Madhava. 2) Sankalpa. 3) Kalasha Puja. 4) Abhisheka with Pancha Amrita chanting Purusha Sukta. 5) Gandha — sandal paste. 6) Pushpa — Tulsi flowers. 7) Dhupa — incense. 8) Deepa — ghee lamp. 9) Naivedya with Dvadasha Stotra. 10) Mangalarati. 11) Pradakshina. 12) Sashtanga Namaskara. 13) Vishnu Sahasranama. 14) Krishnarpanamasthu."},
+  {id:6,topic:"Ekadashi Fasting",content:"Ekadashi (11th lunar day): supreme fasting day. Dashami: avoid leafy greens, rice, urad dal. Ekadashi: complete fast from all grains. Permitted: fruits, milk, rock salt, sabudana. Night: chant Vishnu Sahasranama. Dvadashi: Parana (break fast) within the Dvadashi window. Special Ekadashis: Shayani (begins Chaturmasya), Utthana (ends Chaturmasya), Vaikunta (most auspicious)."},
+  {id:7,topic:"Janmashtami Puja",content:"Krishna Janmashtami — 04 Sep 2026 in Parabhava Samvatsara. Fast entire day. At midnight: Abhisheka with Panchamrita. Offer butter and poha. Chant Krishnashtaka by Madhvacharya. Recite Dvadasha Naama: Kesava, Narayana, Madhava, Govinda, Vishnu, Madhusudana, Trivikrama, Vamana, Sridhara, Hrishikesha, Padmanabha, Damodara. Break fast on Navami morning."},
+  {id:8,topic:"Raghavendra Aradhana",content:"Sri Raghavendra Swami Aradhana — 29-31 Aug 2026. Decorate Brindavana with flowers. Abhisheka of Padukas with Panchamrita. Recite: Poojyaya Raghavendraya Satya Dharma Ratayacha, Bhajataam Kalpavrikshaaya Namathaam Kamadhenave. Read Raghavendra Vijaya. Distribute prasada. Fasting is highly meritorious."},
+  {id:9,topic:"Narasimha Jayanti",content:"Narasimha Jayanti — 30 Apr 2026. Full fast. Abhisheka with Panchamrita. Offer red flowers. Chant Narasimha Kavacham and Nakha Stuti by Madhvacharya. Mantra: Om Ugram Veeram Mahavishnum Jvalantam Sarvatomukham, Nrisimham Bheeshanam Bhadram Mrityur Mrityum Namamy Aham. Mangalarati at dusk."},
+  {id:10,topic:"Dvadasha Stotra",content:"Dvadasha Stotra (12 stotras) by Madhvacharya recited during Naivedya in all Madhwa homes. First verse: Vande vandyam sadanandam Vasudevam niranjanam, Indiradpatimadyadi varadesavarapradam. Composed during installation of Krishna idol at Udupi. Eight commentaries exist. Merit equals 1000 Vishnu Sahasranamas."},
+  {id:11,topic:"Vishnu Sahasranama",content:"Vishnu Sahasranama (1000 names) from Mahabharata Anushasana Parva. Madhvacharya's Bhashya gives up to 100 meanings per name. Daily parayana during puja. Begin with Dhyana shloka; recite all verses; end with Phalashruti. Special merit on Ekadashi and Pournima. Chanting Rama's name thrice equals the full Sahasranama."},
+  {id:12,topic:"Vayustuti Stotra",content:"Vayustuti by Trivikrama Pandita — composed after his conversion to Dvaita after 15-day debate with Madhvacharya. Praises Vayu as Hanuman (Treta), Bhima (Dvapara), Madhvacharya (Kali). Begins: Hari Sarvottama Vayu Jeevottama. Most important stotra after Dvadasha Stotras. Prescribed for daily recitation by all Madhwa devotees."},
+  {id:13,topic:"Raghavendra Stotra",content:"Stotra by Appannacharya: Poojyaya Raghavendraya Satya Dharma Ratayacha, Bhajataam Kalpavrikshaaya Namathaam Kamadhenave. Raghavendra Swami (1595-1671 CE) was avatar of Prahlada. His Brindavana at Mantralayam on Tungabhadra River, Andhra Pradesh. Wrote 60+ works including Parimala. Known as Kalpavruksha."},
+  {id:14,topic:"Uttaradi Math Panchang",content:"Sri Uttaradi Math (Jagadguru Madhwacharya Moola Maha Samstanam) headquartered in Bangalore. Panchanga is the authoritative almanac for all Madhwa festivals. Available at uttaradimath.org. Current year: Sri Parabhava Nama Samvatsara (19 Mar 2026 – Mar 2027). Guru Pushya Yoga: 18 Jun 2026, 18 Mar 2027. Pushyarka Yoga: 26 Nov 2026."},
+  {id:15,topic:"Parabhava Samvatsara Festivals",content:"Key festivals 2026-2027: Ugadi 19 Mar; Rama Navami 27 Mar; Narasimha Jayanti 30 Apr; Raghavendra Aradhana 29-31 Aug; Janmashtami 04 Sep; Ganesha Chaturthi 14 Sep; Navaratri 11 Oct; Vijayadashami 20 Oct; Madhwa Jayanti 21 Oct; Diwali 09 Nov; Utthana Dwadashi 21 Nov; Makara Sankrama 15 Jan 2027; Madhwa Navami 15 Feb 2027."},
+  {id:16,topic:"Bhagavatam Overview",content:"Srimad Bhagavata Purana: 12 Skandhas, 335 chapters, 18000 verses. Madhvacharya wrote Bhagavata Tatparya Nirnaya revealing Dvaita purport. Narrated by Suka Muni to King Parikshit in his final 7 days. Core teaching: pure Ananya Bhakti to Vishnu/Krishna. Sa vai pumsam paro dharmo yato bhaktir adhokshaje."},
+  {id:17,topic:"Bhagavatam Skandhas Stories",content:"Skandha 1: Parikshit, Suta-Saunaka. Skandha 3: Kapila Muni and Devahuti. Skandha 4: Dhruva (pole star devotee), Daksha yajna. Skandha 6: Ajamila — liberation by calling Narayana at death. Skandha 7: Prahlada and Narasimha avatara. Skandha 8: Gajendra Moksha, Vamana. Skandha 10: Full life of Sri Krishna. Skandha 11: Uddhava Gita. Skandha 12: Kali Yuga and Bhagavatam Mahatmya."},
+  {id:18,topic:"Prahlada Gajendra Bhakti",content:"Prahlada (Skandha 7): supreme devotee despite demon father Hiranyakashipu. Taught Nava Vidha Bhakti: Shravanam, Kirtanam, Smaranam, Pada Sevanam, Archanam, Vandanam, Dasyam, Sakhyam, Atma Nivedanam. Narasimha appeared and destroyed Hiranyakashipu. Gajendra Moksha (Skandha 8): elephant surrendered completely — Narayana Hare! — Vishnu instantly appeared and liberated him. Teaches: complete Prapatti (surrender) is supreme."},
+  {id:19,topic:"Haridasa Movement Saints",content:"Haridasa movement (14th-18th c.): Sripadaraja, Vyasatirtha/Vyasaraja, Purandaradasa (Karnataka Sangeeta Pitamaha — grandfather of Carnatic music, 72 Melakarta ragas), Kanakadasa (Kanakana Kindi — western wall of Udupi temple broke open for his darshan), Vadiraja Tirtha, Jagannatha Dasa (Harikathamrita Sara). Their Kannada Devaranamas made Dvaita philosophy accessible to all."},
+  {id:20,topic:"Chaturmasya Vrata",content:"Chaturmasya begins Ashadha Shukla Ekadashi (Shayani) and ends Kartika Shukla Ekadashi (Utthana) — July to November 2026. Vishnu in Yoga Nidra. Austerities: Shravana: no leafy greens; Bhadrapada: no curds; Ashvija: no milk; Kartika: no urad dal. Pontiffs remain in one place and conduct intensive religious programs. Devotees take Sankalpa for austerities."}
+];
+ 
+// ── FESTIVALS ──────────────────────────────────────────────
+const FESTIVALS = [
+  {date:"19 Mar 2026",name:"Chandramana Ugadi",desc:"Telugu/Kannada New Year — Parabhava Samvatsara begins",type:"major"},
+  {date:"21 Mar 2026",name:"Chaitra Gaurivrata",desc:"Gowri Vrata begins",type:"vrata"},
+  {date:"27 Mar 2026",name:"Sri Rama Navami",desc:"Birth of Lord Rama. Fast until midday.",type:"major"},
+  {date:"02 Apr 2026",name:"Chitra Pournima",desc:"Hampi Chariot Festival. Full moon of Chaitra.",type:"pournima"},
+  {date:"20 Apr 2026",name:"Akshaya Tadige",desc:"Akshaya Tritiya — all acts done are inexhaustible.",type:"auspicious"},
+  {date:"30 Apr 2026",name:"Narasimha Jayanti",desc:"Appearance of Lord Narasimha. Full fast, Nakha Stuti.",type:"major"},
+  {date:"18 Jun 2026",name:"Guru Pushya Yoga",desc:"Highly auspicious for initiation and new ventures.",type:"auspicious"},
+  {date:"12 Aug 2026",name:"Deepastambha Gaurivrata",desc:"Gowri Vrata — light a lamp for the Goddess.",type:"vrata"},
+  {date:"16 Aug 2026",name:"Naga Chaturthi",desc:"Worship of the Naga devatas.",type:"festival"},
+  {date:"17 Aug 2026",name:"Naga Panchami",desc:"Naga Puja — milk offering to snake gods.",type:"festival"},
+  {date:"26 Aug 2026",name:"Rigveda Upakarma",desc:"Annual Vedic thread renewal ceremony.",type:"anushtana"},
+  {date:"28 Aug 2026",name:"Varamahalakshmi Vrata",desc:"Worship of Goddess Lakshmi for boons.",type:"major"},
+  {date:"29-31 Aug 2026",name:"Sri Raghavendra Aradhana",desc:"Grand 3-day Aradhana at Mantralayam.",type:"aradhana"},
+  {date:"04 Sep 2026",name:"Sri Krishna Janmashtami",desc:"Birth of Lord Krishna. Midnight Abhisheka. Full day fast.",type:"major"},
+  {date:"14 Sep 2026",name:"Swarna Gaurivrata / Ganesha Chaturthi",desc:"Ganesha installation; Swarna Gowri Vrata.",type:"major"},
+  {date:"15 Sep 2026",name:"Rishi Panchami",desc:"Reverence to the seven Rishis.",type:"festival"},
+  {date:"25 Sep 2026",name:"Ananta Chaturdashi",desc:"Ananta Vrata — tying Ananta thread.",type:"vrata"},
+  {date:"11 Oct 2026",name:"Sharad Navaratri Begins",desc:"Nine nights of the Goddess.",type:"major"},
+  {date:"16 Oct 2026",name:"Saraswati Avahane",desc:"Installation of books for Saraswati Puja.",type:"festival"},
+  {date:"18 Oct 2026",name:"Saraswati Puja",desc:"Worship of Goddess Saraswati. Books blessed.",type:"major"},
+  {date:"20 Oct 2026",name:"Maha Navami / Vijayadashami",desc:"Dasara — most auspicious for new beginnings.",type:"major"},
+  {date:"21 Oct 2026",name:"Madhwa Jayanti",desc:"Celebration of Madhvacharya's philosophy.",type:"aradhana"},
+  {date:"08 Nov 2026",name:"Narakachaturdashi / Dhana Lakshmi Puja",desc:"Pre-Diwali Lakshmi Puja. Oil bath before sunrise.",type:"major"},
+  {date:"09 Nov 2026",name:"Diwali Amavasya",desc:"Lakshmi Puja on the new moon. Festival of lights.",type:"major"},
+  {date:"10 Nov 2026",name:"Bali Padyami",desc:"King Bali's ascent.",type:"festival"},
+  {date:"21 Nov 2026",name:"Utthana Dwadashi / Tulsi Vivaha",desc:"Vishnu awakens from Yoga Nidra. Tulsi-Krishna marriage.",type:"major"},
+  {date:"26 Nov 2026",name:"Pushyarka Yoga",desc:"Pushya Nakshatra on Sunday — extremely auspicious.",type:"auspicious"},
+  {date:"22 Dec 2026",name:"Hanumadvrata",desc:"Vayu Deva worship. Hanuma Jayanti.",type:"festival"},
+  {date:"15 Jan 2027",name:"Makara Sankrama",desc:"Sun enters Capricorn. Sacred dip, sesame offerings.",type:"major"},
+  {date:"13 Feb 2027",name:"Ratha Saptami",desc:"Sun god's chariot turns. Auspicious for health.",type:"major"},
+  {date:"14 Feb 2027",name:"Bhishma Ashtami",desc:"Bhishma Pitamaha's departure. Tarpana for ancestors.",type:"festival"},
+  {date:"15 Feb 2027",name:"Madhwa Navami",desc:"Birthday of Sri Madhvacharya! Most sacred for all Madhwas.",type:"aradhana"},
+  {date:"20 Feb 2027",name:"Mahashivaratri",desc:"Great night of Shiva. All-night vigil and fast.",type:"major"},
+  {date:"18 Mar 2027",name:"Guru Pushya Yoga",desc:"Second Guru Pushya Yoga of the year.",type:"auspicious"},
+  {date:"06 Mar 2027",name:"Bharata Pournima / Bellary Ratha",desc:"Phalguna Pournima, Bellary chariot festival.",type:"pournima"},
+  {date:"22 Mar 2027",name:"Holi Pournima",desc:"Holika Dahan and festival of colors.",type:"festival"}
+];
+ 
+const TYPE_COLORS = {major:"#f5c842",vrata:"#7ec8c8",aradhana:"#ff9955",auspicious:"#90ee90",pournima:"#c8a0ff",festival:"#ffa0c0",anushtana:"#aaccff"};
+ 
+// ── PUJA ITEMS ────────────────────────────────────────────
+const PUJA_ITEMS = [
+  {title:"🪔 Nithya Puja (Daily Worship)",steps:["Achamana — sip water thrice: Keshava, Narayana, Madhava","Sankalpa — resolve the puja with date, time, place","Kalasha Puja — consecrate the water vessel","Abhisheka — bathe the idol with Pancha Amrita chanting Purusha Sukta","Gandha — apply sandal paste to the idol","Pushpa — offer Tulsi flowers for each of Vishnu's names","Dhupa — light incense","Deepa — light ghee lamp, wave clockwise","Naivedya — offer cooked food. Chant Dvadasha Stotra during offering","Mangalarati — wave camphor flame","Pradakshina — circumambulate the deity","Sashtanga Namaskara — full prostration","Vishnu Sahasranama Parayana","Mantrapushpa & Samarpana — conclude: Krishnarpanamasthu"],note:"Apply Urdhvapundra (12 vertical sandal paste marks) on your body before beginning puja."},
+  {title:"🌙 Ekadashi Fasting Procedure",steps:["Dashami (10th): Eat before sunset. Avoid leafy greens, rice, urad dal","Ekadashi Day: Complete fast from all grains (no rice, wheat, dal, barley)","Permitted: fruits, milk, rock salt, sabudana, dry fruits","Spend the day/night chanting Vishnu Sahasranama and Haridasa songs","Dvadashi (12th): Break fast (Parana) within the Dvadashi window","Parana Mantra: Ajnana timirandhasya jnananjana shalakaya, Chakshur unmilitam yena tasmai Sri Gurave namah"],note:"Vaikunta Ekadashi is most auspicious. Shayani Ekadashi begins Chaturmasya; Utthana Ekadashi ends it."},
+  {title:"🦚 Krishna Janmashtami Puja (04 Sep 2026)",steps:["Fast the entire day","Decorate Krishna's idol with flowers and new clothes","At midnight: Abhisheka with Panchamrita — milk, curd, ghee, honey, sugar","Offer butter and poha — Krishna's favorites","Chant Krishnashtaka by Madhvacharya","Recite Dvadasha Naama: Kesava, Narayana, Madhava, Govinda, Vishnu, Madhusudana, Trivikrama, Vamana, Sridhara, Hrishikesha, Padmanabha, Damodara","Sing Haridasa Devaranamas","Mangalarati at midnight","Break fast on Navami morning after sunrise"],note:"Janmashtami falls on 04 September 2026 in Parabhava Samvatsara."},
+  {title:"🔱 Narasimha Jayanti Puja (30 Apr 2026)",steps:["Fast the entire day","Abhisheka of Narasimha idol with Panchamrita","Offer red flowers (hibiscus)","Chant Narasimha Kavacham for protection","Recite Nakha Stuti by Madhvacharya","Chant: Om Ugram Veeram Mahavishnum Jvalantam Sarvatomukham, Nrisimham Bheeshanam Bhadram Mrityur Mrityum Namamy Aham","Mangalarati at dusk","Break fast on Panchami"],note:"Lord Narasimha is worshipped for protection and removal of fear."},
+  {title:"🌺 Raghavendra Aradhana (29-31 Aug 2026)",steps:["Decorate Raghavendra Swami's Brindavana / picture with flowers","Abhisheka of Padukas with Panchamrita","Recite Rayara Stotra: Poojyaya Raghavendraya Satya Dharma Ratayacha, Bhajataam Kalpavrikshaaya Namathaam Kamadhenave","Read Sri Raghavendra Vijaya (biography chapters)","Recite Mantralaya Sri Prabha","Distribute Panchamrita and Prasada","Fasting on this day is highly meritorious"],note:"Those who cannot visit Mantralayam can observe Aradhana at the nearest Uttaradi Math branch or at home."}
+];
+ 
+const STOTRAS = [
+  {name:"Dvadasha Stotra",when:"During Naivedya (food offering) at puja",desc:"12 stotras by Madhvacharya. First verse: 'Vande vandyam sadanandam Vasudevam niranjanam...'"},
+  {name:"Vishnu Sahasranama",when:"Daily — morning or evening puja",desc:"1000 names of Vishnu from Mahabharata. Madhvacharya's Bhashya gives up to 100 meanings per name."},
+  {name:"Vayustuti",when:"Daily; especially on Ekadashi",desc:"By Trivikrama Pandita. Praises Vayu as Hanuman, Bhima, Madhvacharya. Begins 'Hari Sarvottama Vayu Jeevottama.'"},
+  {name:"Nakha Stuti",when:"Narasimha Jayanti (30 Apr 2026) and times of danger",desc:"By Madhvacharya. Praises Lord Narasimha's nails that destroyed Hiranyakashipu."},
+  {name:"Raghavendra Stotra",when:"Daily by Uttaradi Math devotees; Aradhana (29-31 Aug 2026)",desc:"'Poojyaya Raghavendraya Satya Dharma Ratayacha, Bhajataam Kalpavrikshaaya Namathaam Kamadhenave'"},
+  {name:"Krishnashtaka",when:"Janmashtami (04 Sep 2026) and Krishna puja",desc:"8-verse stotra by Madhvacharya glorifying Lord Krishna's divine beauty and attributes."}
+];
+ 
+const SKANDHAS = [
+  {num:1,title:"Pravritti — Creation of Devotion",key:"Parikshit's curse, Suta-Saunaka dialogue, Bhishma's passing on the arrow-bed"},
+  {num:2,title:"Cosmic Vision of the Lord",key:"Vishnu's universal form (Virata Purusha), meditation on the Lord's form"},
+  {num:3,title:"Creation & Kapila's Sankhya",key:"Kapila Muni teaches Sankhya to mother Devahuti"},
+  {num:4,title:"Dhruva, Prithu & Daksha Yajna",key:"Dhruva's penance and elevation to pole star, Daksha yajna disaster"},
+  {num:5,title:"Cosmic Geography & Jada Bharata",key:"Rishabhadeva, Jada Bharata's wisdom, description of the universe"},
+  {num:6,title:"Ajamila & Vritra",key:"Ajamila liberated by calling 'Narayana' at death. Nine types of Bhakti."},
+  {num:7,title:"Prahlada & Narasimha Avatara",key:"Prahlada — supreme devotee. Lord Narasimha destroys Hiranyakashipu."},
+  {num:8,title:"Gajendra Moksha & Vamana Avatara",key:"Gajendra surrenders to Vishnu and is liberated. Samudra Manthan. Vamana defeats Bali."},
+  {num:9,title:"Solar & Lunar Dynasties",key:"Story of Sri Rama. Ancestors of Krishna. King Ambarisha."},
+  {num:10,title:"Life of Sri Krishna (Dasha Skandha)",key:"Birth, Gokula, Govardhana, Rasa Lila, killing Kamsa, Rukmini, Kurukshetra. The most beloved Skandha."},
+  {num:11,title:"Uddhava Gita — Krishna's Final Words",key:"Krishna's teachings to Uddhava before departure. 24 Gurus. Hamsa Gita."},
+  {num:12,title:"Kali Yuga & Bhagavata Mahatmya",key:"Signs of Kali Yuga. Glory of Hari Nama. Bhagavatam — the ripened fruit of the Vedic tree."}
+];
+ 
+const SHLOKAS = [
+  {text:"Sa vai puṃsāṃ paro dharmo yato bhaktir adhokṣaje",meaning:"The highest dharma for all of humanity is that which leads to devotion to the transcendent Lord Vishnu. (Skandha 1.2.6)"},
+  {text:"Nigama-kalpa-taror galitaṃ phalaṃ śuka-mukhād amṛta-drava-saṃyutam",meaning:"The Bhagavatam is the ripe fruit of the Vedic tree, flowing with nectar from the lips of Suka Muni. (Skandha 1.1.3)"},
+  {text:"Śṛṇvatāṃ sva-kathāḥ kṛṣṇaḥ puṇya-śravaṇa-kīrtanaḥ",meaning:"Sri Krishna removes the heart's dirt for those who listen to His glories. (Skandha 1.2.17)"},
+  {text:"Nāmāny anantasya yaśo 'ṅkitāni yat śṛṇvanti gāyanti gṛṇanti sādhavaḥ",meaning:"The holy names of the unlimited Lord heard, sung, and uttered by saints purify all the worlds. (Skandha 1.5.11)"}
+];
+ 
+// ── RAG ───────────────────────────────────────────────────
+function retrieve(query) {
+  const q = query.toLowerCase();
+  const scored = KB.map(doc => {
+    const words = q.split(/\s+/);
+    const content = (doc.content + ' ' + doc.topic).toLowerCase();
+    let score = 0;
+    words.forEach(w => { if (w.length > 3 && content.includes(w)) score++; });
+    if (q.includes(doc.topic.toLowerCase())) score += 5;
+    return {...doc, score};
+  });
+  scored.sort((a,b) => b.score - a.score);
+  const top = scored.filter(d => d.score > 0).slice(0, 3);
+  return top.length ? top : scored.slice(0, 2);
+}
+ 
+// ── RENDER FESTIVALS ─────────────────────────────────────
+let festFilter = 'all';
+function renderFestivals() {
+  const types = ['all','major','aradhana','vrata','auspicious','festival','pournima','anushtana'];
+  document.getElementById('filter-bar').innerHTML = types.map(t =>
+    `<button class="filter-btn ${festFilter===t?'active':''}" onclick="setFilter('${t}')">${t==='all'?'All':t.charAt(0).toUpperCase()+t.slice(1)}</button>`
+  ).join('');
+  const list = festFilter === 'all' ? FESTIVALS : FESTIVALS.filter(f => f.type === festFilter);
+  document.getElementById('fest-list').innerHTML = list.map(f => `
+    <div class="card fest-row" style="margin-bottom:6px">
+      <div class="fest-date">${f.date}</div>
+      <div style="flex:1">
+        <p class="fest-name" style="color:${TYPE_COLORS[f.type]||'#e8d5b0'}">${f.name}</p>
+        <p class="fest-desc">${f.desc}</p>
+      </div>
+      <span class="type-tag" style="color:${TYPE_COLORS[f.type]||'#9a6a20'};border:1px solid ${TYPE_COLORS[f.type]||'#c8860a'}">${f.type}</span>
+    </div>`).join('');
+}
+function setFilter(f) { festFilter = f; renderFestivals(); }
+ 
+// ── RENDER PUJA ───────────────────────────────────────────
+let expandedPuja = null;
+function renderPuja() {
+  document.getElementById('stotras-list').innerHTML = STOTRAS.map(s => `
+    <div class="stotra-item">
+      <p class="stotra-name">${s.name}</p>
+      <p class="stotra-when">When: ${s.when}</p>
+      <p class="stotra-desc">${s.desc}</p>
+    </div>`).join('');
+  document.getElementById('puja-list').innerHTML = PUJA_ITEMS.map((p,i) => `
+    <div class="card puja-item" onclick="togglePuja(${i})" style="margin-bottom:6px">
+      <div class="puja-header">
+        <p class="puja-title">${p.title}</p>
+        <span class="chevron" id="chev-${i}">${expandedPuja===i?'▲':'▼'}</span>
+      </div>
+      ${expandedPuja===i ? `<div class="puja-steps"><ol>${p.steps.map(s=>`<li>${s}</li>`).join('')}</ol>${p.note?`<p class="puja-note">📌 ${p.note}</p>`:''}</div>` : ''}
+    </div>`).join('');
+}
+function togglePuja(i) { expandedPuja = expandedPuja===i ? null : i; renderPuja(); }
+ 
+// ── RENDER BHAGAVATAM ────────────────────────────────────
+let expandedSkandha = null;
+function renderBhagavata() {
+  document.getElementById('shlokas-list').innerHTML = SHLOKAS.map(s => `
+    <div class="card" style="margin-bottom:6px">
+      <p class="shloka-text">${s.text}</p>
+      <p class="shloka-meaning">${s.meaning}</p>
+    </div>`).join('');
+  document.getElementById('skandhas-list').innerHTML = SKANDHAS.map((s,i) => `
+    <div class="card skandha-row" onclick="toggleSkandha(${i})" style="margin-bottom:5px">
+      <div class="skandha-inner">
+        <div class="skandha-num">${s.num}</div>
+        <div style="flex:1">
+          <p class="skandha-title">${s.title}</p>
+          ${expandedSkandha===i?`<p class="skandha-key">${s.key}</p>`:''}
+        </div>
+        <span style="color:#c8860a;font-size:14px">${expandedSkandha===i?'▲':'▼'}</span>
+      </div>
+    </div>`).join('');
+}
+function toggleSkandha(i) { expandedSkandha = expandedSkandha===i ? null : i; renderBhagavata(); }
+ 
+// ── TAB SWITCHING ─────────────────────────────────────────
+function switchTab(tab) {
+  ['chat','festival','puja','bhagavata'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==tab);
+  });
+  document.querySelectorAll('.tab-btn').forEach((btn,i) => {
+    btn.classList.toggle('active', ['chat','festival','puja','bhagavata'][i]===tab);
+  });
+  document.getElementById('chat-footer').style.display = tab==='chat' ? 'block' : 'none';
+}
+ 
+// ── CHAT ─────────────────────────────────────────────────
+const API_KEY = '';  // Leave empty — will use environment variable via backend
+let chatHistory = [];
+let isLoading = false;
+ 
+function addMsg(role, content, sources) {
+  const panel = document.getElementById('chat-panel');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-wrap ' + (role==='user'?'user':'');
+  const srcHtml = sources && sources.length ? `<div class="sources-row"><small>📚 Sources:</small><br>${sources.map(s=>`<span class="source-tag">${s}</span>`).join('')}</div>` : '';
+  wrap.innerHTML = role==='user'
+    ? `<div style="flex:1"></div><div class="bubble user"><p>${content.replace(/\n/g,'<br>')}</p></div><div class="avatar avatar-user">🙏</div>`
+    : `<div class="avatar avatar-bot">🪷</div><div class="bubble"><p>${content.replace(/\n/g,'<br>')}</p>${srcHtml}</div>`;
+  panel.appendChild(wrap);
+  document.getElementById('chat-bottom').scrollIntoView({behavior:'smooth'});
+}
+ 
+function showTyping() {
+  const panel = document.getElementById('chat-panel');
+  const el = document.createElement('div');
+  el.className = 'msg-wrap'; el.id = 'typing';
+  el.innerHTML = `<div class="avatar avatar-bot">🪷</div><div class="bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  panel.appendChild(el);
+  document.getElementById('chat-bottom').scrollIntoView({behavior:'smooth'});
+}
+ 
+function hideTyping() { const el = document.getElementById('typing'); if(el) el.remove(); }
+ 
+async function sendMessage(text) {
+  if (isLoading) return;
+  const input = document.getElementById('chat-input');
+  const msg = (text || input.value).trim();
+  if (!msg) return;
+  document.getElementById('suggestions').style.display = 'none';
+  input.value = '';
+  addMsg('user', msg);
+  chatHistory.push({role:'user', content:msg});
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  showTyping();
+ 
+  const context = retrieve(msg);
+  const contextText = context.map(c => `[Topic: ${c.topic}]\n${c.content}`).join('\n\n---\n\n');
+  const festKW = ['festival','when is','date','samvatsara','parabhava','2026','2027','panchang','aradhana','jayanti','navami'];
+  const festCtx = festKW.some(k=>msg.toLowerCase().includes(k))
+    ? '\n\nFESTIVAL DATES:\n' + FESTIVALS.map(f=>`${f.date}: ${f.name} — ${f.desc}`).join('\n') : '';
+ 
+  const system = `You are a knowledgeable and devoted guide to the Madhwa Sampradaya (Dvaita Vedanta founded by Sri Madhvacharya). Answer with warmth, reverence, and clarity. Begin greetings with "Hari Sarvottama! Vayu Jeevottama!" when appropriate. Use Sanskrit terms with brief explanations. Keep answers focused.\n\n===RETRIEVED KNOWLEDGE===\n${contextText}${festCtx}\n===END===`;
+ 
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key': document.querySelector('meta[name="api-key"]')?.content || '', 'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000, system,
+        messages: chatHistory.slice(-6)
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.[0]?.text || 'Apologies — please try again.';
+    hideTyping();
+    chatHistory.push({role:'assistant', content:reply});
+    addMsg('assistant', reply, context.map(c=>c.topic));
+  } catch(e) {
+    hideTyping();
+    addMsg('assistant', '🙏 A technical issue occurred. Please try again.');
+  }
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+}
+ 
+function sendSug(btn) { sendMessage(btn.textContent); }
+ 
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+ 
+// ── INIT ─────────────────────────────────────────────────
+renderFestivals();
+renderPuja();
+renderBhagavata();
+switchTab('chat');
 </script>
 </body>
 </html>
+ 
